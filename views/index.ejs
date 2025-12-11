@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Butik Ürünler</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card:hover { transform: translateY(-5px); transition: 0.3s; box-shadow: 0 10px 20px rgba(0,0,0,0.1); cursor: pointer; }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <h1 class="text-center mb-5 fw-bold text-dark">Ürün Koleksiyonu</h1>
+        <div class="row g-4">
+            <% products.forEach(product => { %>
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="card h-100 border-0 shadow-sm" onclick="window.location.href='/product/<%= product.id %>'">
+                        <div class="card-body text-center d-flex flex-column justify-content-center">
+                            <h5 class="card-title fw-bold"><%= product.name %></h5>
+                            <p class="card-text text-success fs-4"><%= product.price %> TL</p>
+                            <small class="text-muted mt-auto">İncele</small>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    </div>
+</body>
+</html>

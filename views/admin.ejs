@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Yönetim Paneli</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- QR Kod Kütüphanesi -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        @media print {
+            body * { visibility: hidden; }
+            #printArea, #printArea * { visibility: visible; }
+            #printArea { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-dark bg-dark mb-4">
+        <div class="container">
+            <span class="navbar-brand">Admin Paneli</span>
+            <span class="text-white-50">Şifre: 123</span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <!-- Ekleme Formu -->
+            <div class="col-md-4">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">Ürün Ekle</div>
+                    <div class="card-body">
+                        <form action="/admin/add" method="POST">
+                            <div class="mb-2">
+                                <label>Ürün Adı</label>
+                                <input type="text" name="name" class="form-control" required>
+                            </div>
+                            <div class="mb-2">
+                                <label>Fiyat (TL)</label>
+                                <input type="number" step="0.01" name="price" class="form-control" required>
+                            </div>
+                            <div class="mb-2">
+                                <label>Açıklama</label>
+                                <textarea name="description" class="form-control" rows="2"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label>Admin Şifresi</label>
+                                <input type="password" name="password" class="form-control" placeholder="Şifreniz" required>
+                            </div>
+                            <button type="submit" class="btn btn-success w-100">Kaydet</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Liste -->
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-header">Mevcut Ürünler</div>
+                    <div class="card-body p-0">
+                        <table class="table table-striped mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Ürün</th>
+                                    <th>Fiyat</th>
+                                    <th class="text-end">İşlemler</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% products.forEach(prod => { %>
+                                <tr>
+                                    <td><%= prod.name %></td>
+                                    <td><%= prod.price %> TL</td>
+                                    <td class="text-end">
+                                        <button onclick="showQR('<%= prod.id %>', '<%= prod.name %>')" class="btn btn-sm btn-info text-white me-1">QR</button>
+                                        <form action="/admin/delete" method="POST" class="d-inline" onsubmit="return confirm('Silinsin mi?');">
+                                            <input type="hidden" name="id" value="<%= prod.id %>">
+                                            <input type="hidden" name="password" value="123"> <!-- Kolaylık olsun diye hardcoded -->
+                                            <button type="submit" class="btn btn-sm btn-danger">Sil</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Modal -->
+    <div class="modal fade" id="qrModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered text-center">
+            <div class="modal-content">
+                <div class="modal-body" id="printArea">
+                    <h3 id="qrName" class="mb-3 fw-bold"></h3>
+                    <div id="qrcode" class="d-flex justify-content-center mb-3"></div>
+                    <p class="text-muted">Fiyat bilgisi için okutunuz.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kapat</button>
+                    <button type="button" class="btn btn-primary" onclick="window.print()">Yazdır</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const baseUrl = "<%= baseUrl %>/product/";
+
+        function showQR(id, name) {
+            const modal = new bootstrap.Modal(document.getElementById('qrModal'));
+            document.getElementById('qrName').innerText = name;
+            document.getElementById('qrcode').innerHTML = "";
+            
+            new QRCode(document.getElementById("qrcode"), {
+                text: baseUrl + id,
+                width: 200,
+                height: 200
+            });
+            modal.show();
+        }
+    </script>
+</body>
+</html>
