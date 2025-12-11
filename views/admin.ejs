@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <title>Yönetim Paneli</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- QR Kod Kütüphanesi -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         @media print {
@@ -18,7 +17,7 @@
     <nav class="navbar navbar-dark bg-dark mb-4">
         <div class="container">
             <span class="navbar-brand">Admin Paneli</span>
-            <span class="text-white-50">Şifre: 123</span>
+            <span class="text-white-50">Şifre Girişi Gereklidir</span>
         </div>
     </nav>
 
@@ -27,7 +26,7 @@
             <!-- Ekleme Formu -->
             <div class="col-md-4">
                 <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-primary text-white">Ürün Ekle</div>
+                    <div class="card-header bg-primary text-white">Yeni Ürün Ekle</div>
                     <div class="card-body">
                         <form action="/admin/add" method="POST">
                             <div class="mb-2">
@@ -57,7 +56,7 @@
                 <div class="card shadow-sm">
                     <div class="card-header">Mevcut Ürünler</div>
                     <div class="card-body p-0">
-                        <table class="table table-striped mb-0">
+                        <table class="table table-striped mb-0 align-middle">
                             <thead>
                                 <tr>
                                     <th>Ürün</th>
@@ -71,10 +70,19 @@
                                     <td><%= prod.name %></td>
                                     <td><%= prod.price %> TL</td>
                                     <td class="text-end">
+                                        <!-- DÜZENLE BUTONU -->
+                                        <button 
+                                            class="btn btn-sm btn-warning text-dark me-1"
+                                            onclick="openEditModal('<%= prod.id %>', '<%= prod.name %>', '<%= prod.price %>', `<%= prod.description %>`)"
+                                        >Düzenle</button>
+
+                                        <!-- QR BUTONU -->
                                         <button onclick="showQR('<%= prod.id %>', '<%= prod.name %>')" class="btn btn-sm btn-info text-white me-1">QR</button>
+                                        
+                                        <!-- SİL BUTONU -->
                                         <form action="/admin/delete" method="POST" class="d-inline" onsubmit="return confirm('Silinsin mi?');">
                                             <input type="hidden" name="id" value="<%= prod.id %>">
-                                            <input type="hidden" name="password" value="123"> <!-- Kolaylık olsun diye hardcoded -->
+                                            <input type="hidden" name="password" value="123">
                                             <button type="submit" class="btn btn-sm btn-danger">Sil</button>
                                         </form>
                                     </td>
@@ -105,20 +113,68 @@
         </div>
     </div>
 
+    <!-- DÜZENLEME MODALI (YENİ) -->
+    <div class="modal fade" id="editModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title">Ürünü Düzenle</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="/admin/update" method="POST">
+                        <!-- ID Gizli Olarak Gönderilir -->
+                        <input type="hidden" name="id" id="editId">
+                        
+                        <div class="mb-3">
+                            <label>Ürün Adı</label>
+                            <input type="text" name="name" id="editName" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Fiyat (TL)</label>
+                            <input type="number" step="0.01" name="price" id="editPrice" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>Açıklama</label>
+                            <textarea name="description" id="editDesc" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label>Admin Şifresi (Onay için)</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-warning w-100">Güncelle</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const baseUrl = "<%= baseUrl %>/product/";
 
+        // QR Kod Gösterme
         function showQR(id, name) {
             const modal = new bootstrap.Modal(document.getElementById('qrModal'));
             document.getElementById('qrName').innerText = name;
             document.getElementById('qrcode').innerHTML = "";
-            
             new QRCode(document.getElementById("qrcode"), {
                 text: baseUrl + id,
                 width: 200,
                 height: 200
             });
+            modal.show();
+        }
+
+        // Düzenleme Penceresini Açma ve Bilgileri Doldurma
+        function openEditModal(id, name, price, desc) {
+            const modal = new bootstrap.Modal(document.getElementById('editModal'));
+            
+            document.getElementById('editId').value = id;
+            document.getElementById('editName').value = name;
+            document.getElementById('editPrice').value = price;
+            document.getElementById('editDesc').value = desc;
+            
             modal.show();
         }
     </script>
