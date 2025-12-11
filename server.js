@@ -21,7 +21,7 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 
-const ADMIN_PASSWORD = "123";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 
 // --- ROTALAR ---
 
